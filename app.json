@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "imdb-clone",
+    "slug": "imdb-clone",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "imdb-clone"
+}
