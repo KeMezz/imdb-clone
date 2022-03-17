@@ -12,20 +12,20 @@ const ScreenTwo = ({ navigation: { navigate } }) => (
     <Text>Go To Three</Text>
   </TouchableOpacity>
 );
-const ScreenThree = ({ navigation: { goBack } }) => (
-  <TouchableOpacity onPress={() => goBack()}>
-    <Text>Back to Two</Text>
+const ScreenThree = ({ navigation: { navigate } }) => (
+  <TouchableOpacity onPress={() => navigate("Tabs", { screen: "Search" })}>
+    <Text>Go To Search</Text>
   </TouchableOpacity>
 );
 
-const NativeStack = createNativeStackNavigator();
+const MovieStack = createNativeStackNavigator();
 
 const Stack = () => (
-  <NativeStack.Navigator>
-    <NativeStack.Screen name="one" component={ScreenOne} />
-    <NativeStack.Screen name="two" component={ScreenTwo} />
-    <NativeStack.Screen name="three" component={ScreenThree} />
-  </NativeStack.Navigator>
+  <MovieStack.Navigator>
+    <MovieStack.Screen name="one" component={ScreenOne} />
+    <MovieStack.Screen name="two" component={ScreenTwo} />
+    <MovieStack.Screen name="three" component={ScreenThree} />
+  </MovieStack.Navigator>
 );
 
 export default Stack;
