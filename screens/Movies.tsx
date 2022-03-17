@@ -1,3 +1,4 @@
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import styled from "styled-components/native";
 
@@ -12,7 +13,9 @@ const Title = styled.Text`
   color: ${(props) => props.theme.accentColor};
 `;
 
-const Movies = ({ navigation: { navigate } }) => (
+const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = ({
+  navigation: { navigate },
+}) => (
   <Btn onPress={() => navigate("Stack", { screen: "three" })}>
     <Title>Movies</Title>
   </Btn>

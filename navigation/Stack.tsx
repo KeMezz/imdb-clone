@@ -1,18 +1,27 @@
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
 import { View, Text, TouchableOpacity } from "react-native";
 
-const ScreenOne = ({ navigation: { navigate } }) => (
+const ScreenOne: React.FC<NativeStackScreenProps<any, "ScreenOne">> = ({
+  navigation: { navigate },
+}) => (
   <TouchableOpacity onPress={() => navigate("two")}>
     <Text>Go To Two</Text>
   </TouchableOpacity>
 );
-const ScreenTwo = ({ navigation: { navigate } }) => (
+const ScreenTwo: React.FC<NativeStackScreenProps<any, "ScreenTwo">> = ({
+  navigation: { navigate },
+}) => (
   <TouchableOpacity onPress={() => navigate("three")}>
     <Text>Go To Three</Text>
   </TouchableOpacity>
 );
-const ScreenThree = ({ navigation: { navigate } }) => (
+const ScreenThree: React.FC<NativeStackScreenProps<any, "ScreenThree">> = ({
+  navigation: { navigate },
+}) => (
   <TouchableOpacity onPress={() => navigate("Tabs", { screen: "Search" })}>
     <Text>Go To Search</Text>
   </TouchableOpacity>
@@ -20,7 +29,7 @@ const ScreenThree = ({ navigation: { navigate } }) => (
 
 const MovieStack = createNativeStackNavigator();
 
-const Stack = () => (
+const Stack: React.FC<NativeStackScreenProps<any, "Stack">> = () => (
   <MovieStack.Navigator>
     <MovieStack.Screen name="one" component={ScreenOne} />
     <MovieStack.Screen name="two" component={ScreenTwo} />
