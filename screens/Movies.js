@@ -5,12 +5,11 @@ const Btn = styled.TouchableOpacity`
   flex: 1;
   justify-content: center;
   align-items: center;
+  background-color: ${(props) => props.theme.backgroundColor};
 `;
 
 const Title = styled.Text`
-  color: dodgerblue;
-  font-size: 38px;
-  font-weight: bold;
+  color: ${(props) => props.theme.accentColor};
 `;
 
 const Movies = ({ navigation: { navigate } }) => (
