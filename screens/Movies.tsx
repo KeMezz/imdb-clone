@@ -1,10 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Dimensions, useColorScheme } from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  RefreshControl,
+  useColorScheme,
+} from "react-native";
 import styled from "styled-components/native";
 import Swiper from "react-native-swiper";
 import Slide from "../components/Slide";
-import { ScrollView } from "react-native";
 import Poster from "../components/Poster";
 
 interface iMovieResults {
@@ -39,9 +43,12 @@ const Movie = styled.View`
   justify-content: center;
   align-items: center;
 `;
+const ListContainer = styled.View`
+  margin-bottom: 40px;
+`;
 const ListTitle = styled.Text<{ isDark: boolean }>`
   color: ${(props) => (props.isDark ? "#fff" : "#000")};
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   margin-left: 20px;
 `;
@@ -50,6 +57,7 @@ const Scroll = styled.ScrollView`
 `;
 const Title = styled.Text<{ isDark: boolean }>`
   color: ${(props) => (props.isDark ? "#fff" : "#000")};
+  font-size: 12px;
   font-weight: 600;
   margin-top: 6px;
   margin-bottom: 3px;
@@ -59,11 +67,43 @@ const Vote = styled.Text<{ isDark: boolean }>`
   font-size: 12px;
   color: ${(props) => (props.isDark ? "#fff" : "#000")};
 `;
+const HorizontalLists = styled.View`
+  margin-top: 20px;
+  flex-direction: row;
+  padding: 0 20px;
+`;
+const HorizontalColumn = styled.View`
+  width: 90%;
+  padding: 0 20px;
+  justify-content: center;
+`;
+const HTitle = styled.Text<{ isDark: boolean }>`
+  color: ${(props) => (props.isDark ? "#fff" : "#000")};
+  width: 70%;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+`;
+const Overview = styled.Text<{ isDark: boolean }>`
+  color: ${(props) => (props.isDark ? "#fff" : "#000")};
+  width: 84%;
+  margin-bottom: 8px;
+`;
+const ReleaseDate = styled.Text<{ isDark: boolean }>`
+  color: ${(props) => (props.isDark ? "#fff" : "#000")};
+  font-size: 10px;
+`;
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const isDark = useColorScheme() === "dark";
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await getData();
+    setRefreshing(false);
+  };
 
   const [loading, setLoading] = useState(true);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
@@ -104,7 +144,11 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
       <ActivityIndicator />
     </Loader>
   ) : (
-    <Container>
+    <Container
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Swiper
         autoplay
         autoplayTimeout={3.5}
@@ -113,7 +157,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
         containerStyle={{
           width: SCREEN_WIDTH,
           height: SCREEN_HEIGHT / 4,
-          marginBottom: 20,
+          marginBottom: 40,
         }}
       >
         {nowPlayingMovies.map((movie) => (
@@ -128,24 +172,51 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
           />
         ))}
       </Swiper>
-      <ListTitle isDark={isDark}>Treding Movies</ListTitle>
-      <Scroll
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20 }}
-      >
-        {tredingMovies.map((movie) => (
-          <Movie key={movie.id}>
-            <Poster path={movie.poster_path} />
-            <Title isDark={isDark}>
-              {movie.original_title.length > 10
-                ? movie.original_title.slice(0, 10) + "..."
-                : movie.original_title}
-            </Title>
-            <Vote isDark={isDark}>⭐️ {movie.vote_average} / 10</Vote>
-          </Movie>
-        ))}
-      </Scroll>
+      <ListContainer>
+        <ListTitle isDark={isDark}>Treding Movies</ListTitle>
+        <Scroll
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingLeft: 20, paddingRight: 8 }}
+        >
+          {tredingMovies.map((movie) => (
+            <Movie key={movie.id}>
+              <Poster path={movie.poster_path} />
+              <Title isDark={isDark}>
+                {movie.original_title.length > 10
+                  ? movie.original_title.slice(0, 12) + "..."
+                  : movie.original_title}
+              </Title>
+              <Vote isDark={isDark}>
+                {movie.vote_average > 0
+                  ? `⭐️ ${movie.vote_average} / 10`
+                  : "Coming Soon"}
+              </Vote>
+            </Movie>
+          ))}
+        </Scroll>
+      </ListContainer>
+      <ListTitle isDark={isDark}>Coming Soon</ListTitle>
+      {upComingMovies.map((movie) => (
+        <HorizontalLists key={movie.id}>
+          <Poster path={movie.poster_path}></Poster>
+          <HorizontalColumn>
+            <HTitle isDark={isDark}>{movie.original_title}</HTitle>
+            <Overview isDark={isDark}>
+              {movie.overview.length < 80
+                ? movie.overview
+                : movie.overview.slice(0, 80) + "..."}
+            </Overview>
+            <ReleaseDate isDark={isDark}>
+              {new Date(movie.release_date).toLocaleDateString("ko", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}{" "}
+            </ReleaseDate>
+          </HorizontalColumn>
+        </HorizontalLists>
+      ))}
     </Container>
   );
 };

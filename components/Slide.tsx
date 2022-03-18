@@ -73,7 +73,9 @@ const Slide: React.FC<SlideProps> = ({
             <Title isDark={isDark}>{originalTitle}</Title>
             {overview !== "" && (
               <Overview isDark={isDark}>
-                {overview.slice(0, 70) + "..."}
+                {overview.length > 90
+                  ? overview.slice(0, 100) + "..."
+                  : overview}
               </Overview>
             )}
             {voteAverage > 0 && (
