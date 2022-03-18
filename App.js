@@ -8,19 +8,23 @@ import Root from "./navigation/Root";
 import { useColorScheme } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./styled";
+import { QueryClientProvider, QueryClient } from "react-query";
 
 export default function App() {
   const [assets] = useAssets([]);
   const [loaded] = Font.useFonts(Ionicons.font);
   const isDark = useColorScheme() === "dark";
+  const queryClient = new QueryClient();
   if (!assets || !loaded) {
     return <AppLoading />;
   }
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <NavigationContainer>
-        <Root />
-      </NavigationContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <NavigationContainer>
+          <Root />
+        </NavigationContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

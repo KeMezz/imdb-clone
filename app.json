@@ -3,9 +3,11 @@
     "name": "imdb-clone",
     "slug": "imdb-clone",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "bundleIdentifier": "org.name.imdbclone"
+    }
   },
   "name": "imdb-clone"
 }

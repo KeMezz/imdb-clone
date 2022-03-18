@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components/native";
 import { makeImagePath } from "../utils";
-import { BlurView } from "@react-native-community/blur";
+import { BlurView } from "expo-blur";
 import { StyleSheet, useColorScheme } from "react-native";
 import Poster from "./Poster";
 
@@ -63,8 +63,8 @@ const Slide: React.FC<SlideProps> = ({
         style={StyleSheet.absoluteFill}
       />
       <BlurView
-        blurType={isDark ? "dark" : "xlight"}
-        blurAmount={3}
+        tint={isDark ? "dark" : "light"}
+        intensity={50}
         style={StyleSheet.absoluteFill}
       >
         <Wrapper>

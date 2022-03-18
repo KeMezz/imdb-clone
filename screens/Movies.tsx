@@ -3,16 +3,16 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  RefreshControl,
   useColorScheme,
   FlatList,
-  View,
 } from "react-native";
 import styled from "styled-components/native";
 import Swiper from "react-native-swiper";
 import Slide from "../components/Slide";
 import VMedia from "../components/VMedia";
 import HMedia from "../components/HMedia";
+import { QueryClient, useQuery, useQueryClient } from "react-query";
+import { getMovies } from "../api";
 
 interface iMovieResults {
   adult: boolean;
@@ -31,10 +31,13 @@ interface iMovieResults {
   vote_count: number;
 }
 
-const BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = "aa9053913fbf30c4ec2f4307ecba00f7";
+interface iMovie {
+  page: number;
+  results: iMovieResults[];
+  total_pages: number;
+  total_results: number;
+}
 
-// const Container = styled.ScrollView``;
 const Loader = styled.View`
   flex: 1;
   justify-content: center;
@@ -43,7 +46,7 @@ const Loader = styled.View`
 const TrendingContainer = styled.View`
   margin-bottom: 40px;
 `;
-const TrendingTitle = styled.Text<{ isDark: boolean }>`
+const Title = styled.Text<{ isDark: boolean }>`
   color: ${(props) => (props.isDark ? "#fff" : "#000")};
   font-size: 18px;
   font-weight: 700;
@@ -51,50 +54,65 @@ const TrendingTitle = styled.Text<{ isDark: boolean }>`
   margin-bottom: 20px;
 `;
 const TrendingFlat = styled.FlatList``;
-const ComingSoonTitle = styled(TrendingTitle)``;
-const ComingSoonFlat = styled.FlatList``;
+const VSeparator = styled.View`
+  width: 12px;
+`;
+const HSeparator = styled.View`
+  height: 20px;
+`;
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const isDark = useColorScheme() === "dark";
-  const [refreshing, setRefreshing] = useState(false);
+
   const onRefresh = async () => {
-    setRefreshing(true);
-    await getData();
-    setRefreshing(false);
+    queryClient.refetchQueries("movies");
+  };
+  const renderVMedia = ({ item }) => (
+    <VMedia
+      id={item.id}
+      posterPath={item.poster_path}
+      originalTitle={item.original_title}
+      voteAverage={item.vote_average}
+    />
+  );
+  const renderHMedia = ({ item }) => (
+    <HMedia
+      key={item.id}
+      id={item.id}
+      posterPath={item.poster_path}
+      originalTitle={item.original_title}
+      releaseDate={item.release_date}
+      overview={item.overview}
+    />
+  );
+
+  const queryClient = useQueryClient();
+  const {
+    isLoading: trendingLoading,
+    data: trendingData,
+    isRefetching: isRefetchingTrending,
+  } = useQuery(["movies", "trending"], getMovies.trending);
+  const {
+    isLoading: upcomingLoading,
+    data: upcomingData,
+    isRefetching: isRefetchingUpcoming,
+  } = useQuery(["movies", "upcoming"], getMovies.upcoming);
+  const {
+    isLoading: nowPlayingLoading,
+    data: nowPlayingData,
+    isRefetching: isRefetchingNowPlaying,
+  } = useQuery(["movies", "nowPlaying"], getMovies.nowPlaying);
+
+  const loading = trendingLoading || upcomingLoading || nowPlayingLoading;
+  const refreshing =
+    isRefetchingTrending || isRefetchingUpcoming || isRefetchingNowPlaying;
+
+  const getData = async () => {
+    await Promise.all([trendingData(), upcomingData(), nowPlayingData()]);
   };
 
-  const [loading, setLoading] = useState(true);
-  const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
-  const [upComingMovies, setUpComingMovies] = useState([]);
-  const [tredingMovies, setTredingMovies] = useState([]);
-  const getTrending = async () => {
-    const { results } = await (
-      await fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`)
-    ).json();
-    setTredingMovies(results);
-  };
-  const getUpcoming = async () => {
-    const { results } = await (
-      await fetch(
-        `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=ko&page=1`
-      )
-    ).json();
-    setUpComingMovies(results);
-  };
-  const getNowPlaying = async () => {
-    const { results } = await (
-      await fetch(
-        `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko&page=1`
-      )
-    ).json();
-    setNowPlayingMovies(results);
-  };
-  const getData = async () => {
-    await Promise.all([getTrending(), getUpcoming(), getNowPlaying()]);
-    setLoading(false);
-  };
   useEffect(() => {
     getData();
   }, []);
@@ -120,7 +138,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
               marginBottom: 40,
             }}
           >
-            {nowPlayingMovies.map((movie) => (
+            {nowPlayingData.results.map((movie) => (
               <Slide
                 key={movie.id}
                 id={movie.id}
@@ -133,42 +151,25 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
             ))}
           </Swiper>
           <TrendingContainer>
-            <TrendingTitle isDark={isDark}>Treding Movies</TrendingTitle>
+            <Title isDark={isDark}>Treding Movies</Title>
             <TrendingFlat
-              data={tredingMovies}
+              data={trendingData.results}
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={(item) => item.id}
               contentContainerStyle={{ paddingHorizontal: 20 }}
-              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
-              renderItem={({ item }) => (
-                <VMedia
-                  id={item.id}
-                  posterPath={item.poster_path}
-                  originalTitle={item.original_title}
-                  voteAverage={item.vote_average}
-                />
-              )}
+              ItemSeparatorComponent={VSeparator}
+              renderItem={renderVMedia}
             />
           </TrendingContainer>
-
-          <ComingSoonTitle isDark={isDark}>Coming Soon</ComingSoonTitle>
+          <Title isDark={isDark}>Coming Soon</Title>
         </>
       }
-      data={upComingMovies}
+      data={upcomingData.results}
       keyExtractor={(item) => item.id}
-      ItemSeparatorComponent={() => <View style={{ height: 20 }} />}
+      ItemSeparatorComponent={HSeparator}
       contentContainerStyle={{ marginBottom: 30 }}
-      renderItem={({ item }) => (
-        <HMedia
-          key={item.id}
-          id={item.id}
-          posterPath={item.poster_path}
-          originalTitle={item.original_title}
-          releaseDate={item.release_date}
-          overview={item.overview}
-        />
-      )}
+      renderItem={renderHMedia}
     />
   );
 };
