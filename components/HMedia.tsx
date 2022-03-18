@@ -12,7 +12,6 @@ interface HMediaProps {
 }
 
 const HorizontalLists = styled.View`
-  margin-bottom: 20px;
   flex-direction: row;
   padding: 0 20px;
 `;

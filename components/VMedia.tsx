@@ -12,7 +12,6 @@ interface VMediaProps {
 
 const VerticalContainer = styled.View`
   flex: 1;
-  margin-right: 12px;
   justify-content: center;
   align-items: center;
 `;
