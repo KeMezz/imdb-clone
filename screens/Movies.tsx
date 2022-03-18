@@ -10,6 +10,8 @@ import styled from "styled-components/native";
 import Swiper from "react-native-swiper";
 import Slide from "../components/Slide";
 import Poster from "../components/Poster";
+import VMedia from "../components/VMedia";
+import HMedia from "../components/HMedia";
 
 interface iMovieResults {
   adult: boolean;
@@ -37,16 +39,10 @@ const Loader = styled.View`
   justify-content: center;
   align-items: center;
 `;
-const Movie = styled.View`
-  flex: 1;
-  margin-right: 12px;
-  justify-content: center;
-  align-items: center;
-`;
-const ListContainer = styled.View`
+const TrendingContainer = styled.View`
   margin-bottom: 40px;
 `;
-const ListTitle = styled.Text<{ isDark: boolean }>`
+const TrendingTitle = styled.Text<{ isDark: boolean }>`
   color: ${(props) => (props.isDark ? "#fff" : "#000")};
   font-size: 18px;
   font-weight: 700;
@@ -55,43 +51,8 @@ const ListTitle = styled.Text<{ isDark: boolean }>`
 const Scroll = styled.ScrollView`
   margin-top: 20;
 `;
-const Title = styled.Text<{ isDark: boolean }>`
-  color: ${(props) => (props.isDark ? "#fff" : "#000")};
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 6px;
-  margin-bottom: 3px;
-`;
-const Vote = styled.Text<{ isDark: boolean }>`
-  font-weight: 600;
-  font-size: 12px;
-  color: ${(props) => (props.isDark ? "#fff" : "#000")};
-`;
-const HorizontalLists = styled.View`
-  margin-top: 20px;
-  flex-direction: row;
-  padding: 0 20px;
-`;
-const HorizontalColumn = styled.View`
-  width: 90%;
-  padding: 0 20px;
-  justify-content: center;
-`;
-const HTitle = styled.Text<{ isDark: boolean }>`
-  color: ${(props) => (props.isDark ? "#fff" : "#000")};
-  width: 70%;
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 8px;
-`;
-const Overview = styled.Text<{ isDark: boolean }>`
-  color: ${(props) => (props.isDark ? "#fff" : "#000")};
-  width: 84%;
-  margin-bottom: 8px;
-`;
-const ReleaseDate = styled.Text<{ isDark: boolean }>`
-  color: ${(props) => (props.isDark ? "#fff" : "#000")};
-  font-size: 10px;
+const ComingSoonTitle = styled(TrendingTitle)`
+  margin-bottom: 20px;
 `;
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -172,50 +133,34 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
           />
         ))}
       </Swiper>
-      <ListContainer>
-        <ListTitle isDark={isDark}>Treding Movies</ListTitle>
+      <TrendingContainer>
+        <TrendingTitle isDark={isDark}>Treding Movies</TrendingTitle>
         <Scroll
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingLeft: 20, paddingRight: 8 }}
         >
           {tredingMovies.map((movie) => (
-            <Movie key={movie.id}>
-              <Poster path={movie.poster_path} />
-              <Title isDark={isDark}>
-                {movie.original_title.length > 10
-                  ? movie.original_title.slice(0, 12) + "..."
-                  : movie.original_title}
-              </Title>
-              <Vote isDark={isDark}>
-                {movie.vote_average > 0
-                  ? `⭐️ ${movie.vote_average} / 10`
-                  : "Coming Soon"}
-              </Vote>
-            </Movie>
+            <VMedia
+              key={movie.id}
+              id={movie.id}
+              posterPath={movie.poster_path}
+              originalTitle={movie.original_title}
+              voteAverage={movie.vote_average}
+            />
           ))}
         </Scroll>
-      </ListContainer>
-      <ListTitle isDark={isDark}>Coming Soon</ListTitle>
+      </TrendingContainer>
+      <ComingSoonTitle isDark={isDark}>Coming Soon</ComingSoonTitle>
       {upComingMovies.map((movie) => (
-        <HorizontalLists key={movie.id}>
-          <Poster path={movie.poster_path}></Poster>
-          <HorizontalColumn>
-            <HTitle isDark={isDark}>{movie.original_title}</HTitle>
-            <Overview isDark={isDark}>
-              {movie.overview.length < 80
-                ? movie.overview
-                : movie.overview.slice(0, 80) + "..."}
-            </Overview>
-            <ReleaseDate isDark={isDark}>
-              {new Date(movie.release_date).toLocaleDateString("ko", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}{" "}
-            </ReleaseDate>
-          </HorizontalColumn>
-        </HorizontalLists>
+        <HMedia
+          key={movie.id}
+          id={movie.id}
+          posterPath={movie.poster_path}
+          originalTitle={movie.original_title}
+          releaseDate={movie.release_date}
+          overview={movie.overview}
+        />
       ))}
     </Container>
   );
