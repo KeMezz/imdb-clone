@@ -1,42 +1,18 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Dimensions,
   useColorScheme,
   FlatList,
 } from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useQuery, useQueryClient } from "react-query";
+import { getMovies, MovieResponse } from "../api";
 import styled from "styled-components/native";
 import Swiper from "react-native-swiper";
 import Slide from "../components/Slide";
 import VMedia from "../components/VMedia";
 import HMedia from "../components/HMedia";
-import { QueryClient, useQuery, useQueryClient } from "react-query";
-import { getMovies } from "../api";
-
-interface iMovieResults {
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
-  id: number;
-  original_language: string;
-  original_title: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
-  release_date: string;
-  title: string;
-  video: boolean;
-  vote_average: number;
-  vote_count: number;
-}
-
-interface iMovie {
-  page: number;
-  results: iMovieResults[];
-  total_pages: number;
-  total_results: number;
-}
 
 const Loader = styled.View`
   flex: 1;
@@ -53,7 +29,7 @@ const Title = styled.Text<{ isDark: boolean }>`
   margin-left: 20px;
   margin-bottom: 20px;
 `;
-const TrendingFlat = styled.FlatList``;
+const TrendingFlat = styled.FlatList`` as unknown as typeof FlatList;
 const VSeparator = styled.View`
   width: 12px;
 `;
@@ -66,56 +42,30 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const isDark = useColorScheme() === "dark";
 
+  const queryClient = useQueryClient();
   const onRefresh = async () => {
     queryClient.refetchQueries("movies");
   };
-  const renderVMedia = ({ item }) => (
-    <VMedia
-      id={item.id}
-      posterPath={item.poster_path}
-      originalTitle={item.original_title}
-      voteAverage={item.vote_average}
-    />
-  );
-  const renderHMedia = ({ item }) => (
-    <HMedia
-      key={item.id}
-      id={item.id}
-      posterPath={item.poster_path}
-      originalTitle={item.original_title}
-      releaseDate={item.release_date}
-      overview={item.overview}
-    />
-  );
 
-  const queryClient = useQueryClient();
   const {
     isLoading: trendingLoading,
     data: trendingData,
     isRefetching: isRefetchingTrending,
-  } = useQuery(["movies", "trending"], getMovies.trending);
+  } = useQuery<MovieResponse>(["movies", "trending"], getMovies.trending);
   const {
     isLoading: upcomingLoading,
     data: upcomingData,
     isRefetching: isRefetchingUpcoming,
-  } = useQuery(["movies", "upcoming"], getMovies.upcoming);
+  } = useQuery<MovieResponse>(["movies", "upcoming"], getMovies.upcoming);
   const {
     isLoading: nowPlayingLoading,
     data: nowPlayingData,
     isRefetching: isRefetchingNowPlaying,
-  } = useQuery(["movies", "nowPlaying"], getMovies.nowPlaying);
+  } = useQuery<MovieResponse>(["movies", "nowPlaying"], getMovies.nowPlaying);
 
   const loading = trendingLoading || upcomingLoading || nowPlayingLoading;
   const refreshing =
     isRefetchingTrending || isRefetchingUpcoming || isRefetchingNowPlaying;
-
-  const getData = async () => {
-    await Promise.all([trendingData(), upcomingData(), nowPlayingData()]);
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   return loading ? (
     <Loader>
@@ -138,12 +88,12 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
               marginBottom: 40,
             }}
           >
-            {nowPlayingData.results.map((movie) => (
+            {nowPlayingData?.results.map((movie) => (
               <Slide
                 key={movie.id}
                 id={movie.id}
-                backdropPath={movie.backdrop_path}
-                posterPath={movie.poster_path}
+                backdropPath={movie.backdrop_path || ""}
+                posterPath={movie.poster_path || ""}
                 originalTitle={movie.original_title}
                 overview={movie.overview}
                 voteAverage={movie.vote_average}
@@ -151,25 +101,41 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
             ))}
           </Swiper>
           <TrendingContainer>
-            <Title isDark={isDark}>Treding Movies</Title>
+            <Title isDark={isDark}>Trending Movies</Title>
             <TrendingFlat
-              data={trendingData.results}
+              data={trendingData?.results}
               horizontal
               showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id + ""}
               contentContainerStyle={{ paddingHorizontal: 20 }}
               ItemSeparatorComponent={VSeparator}
-              renderItem={renderVMedia}
+              renderItem={({ item }) => (
+                <VMedia
+                  id={item.id}
+                  posterPath={item.poster_path || ""}
+                  originalTitle={item.original_title}
+                  voteAverage={item.vote_average}
+                />
+              )}
             />
           </TrendingContainer>
           <Title isDark={isDark}>Coming Soon</Title>
         </>
       }
-      data={upcomingData.results}
-      keyExtractor={(item) => item.id}
+      data={upcomingData?.results}
+      keyExtractor={(item) => item.id + ""}
       ItemSeparatorComponent={HSeparator}
       contentContainerStyle={{ marginBottom: 30 }}
-      renderItem={renderHMedia}
+      renderItem={({ item }) => (
+        <HMedia
+          key={item.id}
+          id={item.id}
+          posterPath={item.poster_path || ""}
+          originalTitle={item.original_title}
+          releaseDate={item.release_date}
+          overview={item.overview}
+        />
+      )}
     />
   );
 };
