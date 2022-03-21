@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Dimensions,
-  useColorScheme,
-  FlatList,
-} from "react-native";
+import { Dimensions, useColorScheme, FlatList } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useQuery, useQueryClient } from "react-query";
 import { getMovies, MovieResponse } from "../api";
@@ -13,12 +8,8 @@ import Swiper from "react-native-swiper";
 import Slide from "../components/Slide";
 import VMedia from "../components/VMedia";
 import HMedia from "../components/HMedia";
+import Loader from "../components/Loader";
 
-const Loader = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`;
 const TrendingContainer = styled.View`
   margin-bottom: 40px;
 `;
@@ -68,9 +59,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
     isRefetchingTrending || isRefetchingUpcoming || isRefetchingNowPlaying;
 
   return loading ? (
-    <Loader>
-      <ActivityIndicator />
-    </Loader>
+    <Loader />
   ) : (
     <FlatList
       refreshing={refreshing}

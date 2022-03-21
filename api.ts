@@ -18,7 +18,21 @@ interface Movie {
   vote_count: number;
 }
 
-interface TV {}
+interface TV {
+  backdrop_path: string;
+  first_air_date: string;
+  genre_ids: number[];
+  id: number;
+  name: string;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
+}
 
 interface BaseResponse {
   page: number;
@@ -30,19 +44,36 @@ export interface MovieResponse extends BaseResponse {
   results: Movie[];
 }
 
-const trending = () =>
-  fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`).then((response) =>
-    response.json()
-  );
+export interface TVResponse extends BaseResponse {
+  results: TV[];
+}
 
-const upcoming = () =>
-  fetch(
-    `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=ko&page=1`
-  ).then((response) => response.json());
+export const getMovies = {
+  trending: () =>
+    fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`).then(
+      (response) => response.json()
+    ),
+  upcoming: () =>
+    fetch(
+      `${BASE_URL}/movie/upcoming?api_key=${API_KEY}&language=ko&page=1`
+    ).then((response) => response.json()),
+  nowPlaying: () =>
+    fetch(
+      `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko&page=1`
+    ).then((response) => response.json()),
+};
 
-const nowPlaying = () =>
-  fetch(
-    `${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=ko&page=1`
-  ).then((response) => response.json());
-
-export const getMovies = { trending, upcoming, nowPlaying };
+export const getTVs = {
+  airingToday: () =>
+    fetch(
+      `${BASE_URL}/tv/airing_today?api_key=${API_KEY}&language=ko&page=1`
+    ).then((response) => response.json()),
+  trending: () =>
+    fetch(`${BASE_URL}/trending/tv/week?api_key=${API_KEY}`).then((response) =>
+      response.json()
+    ),
+  topRated: () =>
+    fetch(
+      `${BASE_URL}/tv/top_rated?api_key=${API_KEY}&language=ko&page=1`
+    ).then((response) => response.json()),
+};

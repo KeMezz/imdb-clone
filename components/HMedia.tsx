@@ -7,7 +7,7 @@ interface HMediaProps {
   id: number;
   posterPath: string;
   originalTitle: string;
-  releaseDate?: string;
+  releaseDate: string;
   overview: string;
 }
 
