@@ -64,7 +64,6 @@ const Slide: React.FC<SlideProps> = ({
       />
       <BlurView
         tint={isDark ? "dark" : "light"}
-        intensity={50}
         style={StyleSheet.absoluteFill}
       >
         <Wrapper>
@@ -74,7 +73,7 @@ const Slide: React.FC<SlideProps> = ({
             {overview !== "" && (
               <Overview isDark={isDark}>
                 {overview.length > 90
-                  ? overview.slice(0, 100) + "..."
+                  ? overview.slice(0, 90) + "..."
                   : overview}
               </Overview>
             )}
