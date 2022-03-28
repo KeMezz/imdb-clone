@@ -9,6 +9,7 @@ import { useColorScheme } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./styled";
 import { QueryClientProvider, QueryClient } from "react-query";
+import { StatusBar } from "expo-status-bar";
 
 export default function App() {
   const [assets] = useAssets([]);
@@ -22,6 +23,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
         <NavigationContainer>
+          <StatusBar />
           <Root />
         </NavigationContainer>
       </ThemeProvider>
