@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dimensions, useColorScheme, FlatList } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useQuery, useQueryClient } from "react-query";
@@ -34,29 +34,21 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const isDark = useColorScheme() === "dark";
 
   const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
-    queryClient.refetchQueries("movies");
+    setRefreshing(true);
+    await queryClient.refetchQueries("movies");
+    setRefreshing(false);
   };
 
-  const {
-    isLoading: trendingLoading,
-    data: trendingData,
-    isRefetching: isRefetchingTrending,
-  } = useQuery<MovieResponse>(["movies", "trending"], getMovies.trending);
-  const {
-    isLoading: upcomingLoading,
-    data: upcomingData,
-    isRefetching: isRefetchingUpcoming,
-  } = useQuery<MovieResponse>(["movies", "upcoming"], getMovies.upcoming);
-  const {
-    isLoading: nowPlayingLoading,
-    data: nowPlayingData,
-    isRefetching: isRefetchingNowPlaying,
-  } = useQuery<MovieResponse>(["movies", "nowPlaying"], getMovies.nowPlaying);
+  const { isLoading: trendingLoading, data: trendingData } =
+    useQuery<MovieResponse>(["movies", "trending"], getMovies.trending);
+  const { isLoading: upcomingLoading, data: upcomingData } =
+    useQuery<MovieResponse>(["movies", "upcoming"], getMovies.upcoming);
+  const { isLoading: nowPlayingLoading, data: nowPlayingData } =
+    useQuery<MovieResponse>(["movies", "nowPlaying"], getMovies.nowPlaying);
 
   const loading = trendingLoading || upcomingLoading || nowPlayingLoading;
-  const refreshing =
-    isRefetchingTrending || isRefetchingUpcoming || isRefetchingNowPlaying;
 
   return loading ? (
     <Loader />

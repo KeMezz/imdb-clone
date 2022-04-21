@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, FlatList, Dimensions, useColorScheme } from "react-native";
 import { useQuery, useQueryClient } from "react-query";
 import { getTVs, TVResponse } from "../api";
@@ -33,29 +33,23 @@ const TV = () => {
   const isDark = useColorScheme() === "dark";
 
   const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
-    queryClient.refetchQueries("tv");
+    setRefreshing(true);
+    await queryClient.refetchQueries("tv");
+    setRefreshing(false);
   };
 
-  const {
-    isLoading: airingLoading,
-    data: airingData,
-    isRefetching: isRefetchingAiring,
-  } = useQuery<TVResponse>(["tv", "airingToday"], getTVs.airingToday);
-  const {
-    isLoading: topRatedLoading,
-    data: topRatedData,
-    isRefetching: isRefetchingTopRated,
-  } = useQuery<TVResponse>(["tv", "topRated"], getTVs.topRated);
-  const {
-    isLoading: trendingLoading,
-    data: trendingData,
-    isRefetching: isRefetchingTrending,
-  } = useQuery<TVResponse>(["tv", "trending"], getTVs.trending);
+  const { isLoading: airingLoading, data: airingData } = useQuery<TVResponse>(
+    ["tv", "airingToday"],
+    getTVs.airingToday
+  );
+  const { isLoading: topRatedLoading, data: topRatedData } =
+    useQuery<TVResponse>(["tv", "topRated"], getTVs.topRated);
+  const { isLoading: trendingLoading, data: trendingData } =
+    useQuery<TVResponse>(["tv", "trending"], getTVs.trending);
 
   const isLoading = airingLoading || topRatedLoading || trendingLoading;
-  const refreshing =
-    isRefetchingTrending || isRefetchingAiring || isRefetchingTopRated;
 
   return isLoading ? (
     <Loader />
